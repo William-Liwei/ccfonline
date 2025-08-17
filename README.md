@@ -17,7 +17,7 @@ CCF Online是一个专注于计算机领域学术会议和期刊信息的在线�
 
 ## 项目部署
 
-- 该项目已部署到 [CCF-Online](https://www.weili.space/CCF/)，您可以直接通过域名访问平台，获取最新的学术会议和期刊信息。
+- 该项目已部署到 [CCF-Online](https://www.weili.space/ccf/)，您可以直接通过域名访问平台，获取最新的学术会议和期刊信息。
 
 ## 商业化愿景
 
