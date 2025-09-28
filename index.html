@@ -722,11 +722,18 @@
         let markdownData = [];
         let currentTab = 'ccf';
         let sortState = { column: null, direction: 'none' };
-        let acceptanceRateData = {};
+        // --- 核心修复 1: 将 acceptanceRateData 的初始值修正为 Map 对象 ---
+        let acceptanceRateData = new Map();
+
+        // --- 核心修复 2: 更改 localStorage 的键名以强制更新缓存 ---
+        const CACHE_KEYS = {
+            CONFERENCE: 'conferenceData_v2',
+            ACCEPTANCE: 'acceptanceRateData_v2',
+            LAST_UPDATE: 'lastUpdate_v2'
+        };
 
         const categoryMap = { 'AI': '人工智能', 'CT': '计算机科学理论', 'CG': '计算机图形学与多媒体', 'DS': '计算机体系结构/并行与分布计算/存储系统', 'NW': '计算机网络', 'SC': '网络与信息安全', 'SE': '软件工程/系统软件/程序设计语言', 'DB': '数据库/数据挖掘/内容检索', 'HI': '人机交互与普适计算', 'MX': '交叉/综合/新兴' };
 
-        // 表头模板修改
         const ccfHeaderTemplate = `<tr><th class="sortable-header" data-column="title">简称 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="description">全称 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="sub">领域 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="ccf_rank">CCF <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="year">年份 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="deadline">截稿时间 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="acceptance_rate">录用率 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="date">会议日期 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="place">地点 <span class="sort-indicator none"></span></th><th>链接</th><th>分享</th></tr>`;
         const jcrHeaderTemplate = `<tr><th class="sortable-header" data-column="name">期刊名 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="issn">ISSN <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="category">类别 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="impactFactor">影响因子 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="quartile">JCR分区 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="cas_partition">中科院分区 <span class="sort-indicator none"></span></th><th>分享</th></tr>`;
         const markdownHeaderTemplate = `<tr><th class="sortable-header" data-column="name">简称 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="totalname">全称 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="category">领域 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="type">类型 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="level">级别 <span class="sort-indicator none"></span></th><th class="sortable-header" data-column="publisher">出版社 <span class="sort-indicator none"></span></th><th>链接</th><th>分享</th></tr>`;
@@ -770,10 +777,60 @@
             }
         }
 
-        function processConfData(confYaml) { /* ... implementation unchanged ... */ }
-        function processAccData(accYaml) { /* ... implementation unchanged ... */ }
-        function getAcceptanceRate(title, year) { /* ... implementation unchanged ... */ }
+        function processConfData(confYaml) {
+            try {
+                const data = jsyaml.load(confYaml);
+                const processed = [];
+                data.forEach(conf => {
+                    if (conf.confs && conf.confs.length > 0) {
+                        conf.confs.forEach(c => {
+                            processed.push({
+                                title: conf.title, description: conf.description, sub: conf.sub,
+                                ccf_rank: conf.rank?.ccf,
+                                year: c.year, deadline: c.timeline?.[0]?.deadline || 'TBD',
+                                date: c.date, place: c.place, link: c.link,
+                            });
+                        });
+                    }
+                });
+                return processed;
+            } catch (e) { console.error('YAML conf parsing failed:', e); return []; }
+        }
 
+        function processAccData(accYaml) {
+            try {
+                const data = jsyaml.load(accYaml);
+                const rateMap = new Map();
+                data.forEach(item => {
+                    if (item.title && item.accept_rates) {
+                        if (!rateMap.has(item.title)) {
+                            rateMap.set(item.title, []);
+                        }
+                        item.accept_rates.forEach(rateEntry => {
+                            if (rateEntry.year) {
+                                rateMap.get(item.title).push(rateEntry);
+                            }
+                        });
+                    }
+                });
+                rateMap.forEach(rates => {
+                    rates.sort((a, b) => b.year - a.year);
+                });
+                return rateMap;
+            } catch (e) {
+                console.error('YAML acc parsing failed:', e);
+                return new Map();
+            }
+        }
+
+        const getAcceptanceRate = (title, year) => {
+            const rates = acceptanceRateData.get(title);
+            if (!rates || rates.length === 0) return null;
+            const exactMatch = rates.find(r => r.year != null && r.year.toString() === year.toString());
+            if (exactMatch) return exactMatch;
+            return rates[0]; // Return the latest one
+        };
+        
         async function updateConferenceData() {
             const updateBtn = document.getElementById('update-btn');
             const btnText = updateBtn.querySelector('.btn-text');
@@ -797,9 +854,9 @@
                         conf.acceptance_rate = getAcceptanceRate(conf.title, conf.year);
                     });
 
-                    localStorage.setItem('conferenceData', JSON.stringify(conferenceData));
-                    localStorage.setItem('acceptanceRateData', JSON.stringify(acceptanceRateData));
-                    localStorage.setItem('lastUpdate', new Date().toISOString());
+                    localStorage.setItem(CACHE_KEYS.CONFERENCE, JSON.stringify(conferenceData));
+                    localStorage.setItem(CACHE_KEYS.ACCEPTANCE, JSON.stringify(Array.from(acceptanceRateData.entries())));
+                    localStorage.setItem(CACHE_KEYS.LAST_UPDATE, new Date().toISOString());
 
                     populateConferenceFilterOptions(conferenceData);
                     updateTable('ccf');
@@ -811,53 +868,10 @@
             updateBtn.disabled = false; updateBtn.classList.remove('loading'); btnText.textContent = '更新会议数据';
         }
 
-        // ... Other functions like parseMarkdown, parseExcel, populating filters, sorting, rendering ...
-        // Note: I will copy these functions from your original code and add the necessary fixes.
-        
-        // --- DATA PROCESSING (FIXED) ---
-        processConfData = (confYaml) => {
-            try {
-                const data = jsyaml.load(confYaml);
-                const processed = [];
-                data.forEach(conf => {
-                    if (conf.confs && conf.confs.length > 0) {
-                        conf.confs.forEach(c => {
-                            processed.push({
-                                title: conf.title, description: conf.description, sub: conf.sub,
-                                ccf_rank: conf.rank?.ccf, // **FIXED**: Correctly get CCF Rank
-                                year: c.year, deadline: c.timeline?.[0]?.deadline || 'TBD',
-                                date: c.date, place: c.place, link: c.link,
-                            });
-                        });
-                    }
-                });
-                return processed;
-            } catch (e) { console.error('YAML conf parsing failed:', e); return []; }
-        };
-
-        processAccData = (accYaml) => {
-            try {
-                const data = jsyaml.load(accYaml);
-                const accMap = {};
-                data.forEach(item => { if (item.title && item.accept_rates) accMap[item.title] = item.accept_rates; });
-                return accMap;
-            } catch(e) { console.error('YAML acc parsing failed:', e); return {}; }
-        };
-        
-        getAcceptanceRate = (title, year) => {
-            const rates = acceptanceRateData[title];
-            if (!rates) return null;
-            // Safe check for year
-            if (year == null) return rates.sort((a,b) => b.year - a.year)[0] || null;
-            const exactMatch = rates.find(r => r.year != null && r.year.toString() === year.toString());
-            if (exactMatch) return exactMatch;
-            return rates.sort((a,b) => Math.abs(a.year - year) - Math.abs(b.year - year))[0] || null;
-        };
-
-        parseMarkdown = (markdownText) => {
+        function parseMarkdown(markdownText) {
             const lines = markdownText.split('\n');
             const data = [];
-            let currentCategory = ''; let currentType = ''; let currentLevel = 'N';
+            let currentCategory = '', currentType = '', currentLevel = 'N';
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (line.startsWith('#####')) {
@@ -878,25 +892,22 @@
                 }
             }
             return data;
-        };
+        }
 
-        parseExcel = (buffer) => {
+        function parseExcel(buffer) {
             const workbook = XLSX.read(buffer, { type: 'array' });
             const jcrJson = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
             const parsedJcrData = jcrJson.map(item => ({ name: item['期刊名'] || '', issn: item['ISSN'] || '', category: item['Category'] || '', impactFactor: parseFloat(item['2024JIF']) || 0, quartile: item['Quartile'] || '' }));
-
             const casJson = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[1]]);
             const casMap = new Map(casJson.map(item => [(item['期刊名称'] || '').toLowerCase().trim(), { cas_partition: `${item['2025分区']}区${item['Top'] === '是' ? ' Top' : ''}` }]));
-            
             parsedJcrData.forEach(item => {
                 const casInfo = casMap.get(item.name.toLowerCase().trim());
                 item.cas_partition = casInfo ? casInfo.cas_partition : 'N/A';
             });
             return parsedJcrData;
-        };
+        }
         
-        // --- UI & Rendering (Your original functions with robustness fixes) ---
-        populateConferenceFilterOptions = (data) => {
+        function populateConferenceFilterOptions(data) {
             const categories = [...new Set(data.map(item => item.sub).filter(Boolean))].sort();
             const years = [...new Set(data.map(item => item.year).filter(Boolean))].sort((a, b) => b - a);
             const categoryFilter = document.getElementById('category-filter');
@@ -905,44 +916,55 @@
             yearFilter.innerHTML = '<option value="all">所有年份</option>';
             categories.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = categoryMap[c] || c; categoryFilter.appendChild(opt); });
             years.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; yearFilter.appendChild(opt); });
-        };
+        }
         
-        populateMarkdownFilterOptions = (data) => {
+        function populateMarkdownFilterOptions(data) {
             const categories = [...new Set(data.map(item => item.category).filter(Boolean))];
             const types = [...new Set(data.map(item => item.type).filter(Boolean))];
             const publishers = [...new Set(data.map(item => item.publisher).filter(Boolean))];
-            
             const catSelect = document.getElementById('markdown-category-filter'); catSelect.innerHTML = '<option value="all">所有领域</option>'; categories.forEach(c => catSelect.innerHTML += `<option value="${c}">${c}</option>`);
             const typeSelect = document.getElementById('markdown-type-filter'); typeSelect.innerHTML = '<option value="all">所有类型</option>'; types.forEach(t => typeSelect.innerHTML += `<option value="${t}">${t}</option>`);
             const pubSelect = document.getElementById('markdown-publisher-filter'); pubSelect.innerHTML = '<option value="all">所有出版社</option>'; publishers.forEach(p => pubSelect.innerHTML += `<option value="${p}">${p}</option>`);
-        };
+        }
 
-        populateJCRFilterOptions = (data) => {
+        function populateJCRFilterOptions(data) {
             const categoryOptions = [...new Set(data.flatMap(item => (item.category || '').split(';')).filter(Boolean))];
             const categoryFilter = document.getElementById('jcr-category-filter');
             categoryOptions.forEach(c => categoryFilter.innerHTML += `<option value="${c}">${c}</option>`);
-        };
+        }
 
-        sortData = (data, column, direction) => {
+        function sortData(data, column, direction) {
             if (!column || direction === 'none') return data;
             return [...data].sort((a, b) => {
                 let valA = a[column], valB = b[column];
-                if (column === 'deadline') { const tA = new Date(valA).getTime(); const tB = new Date(valB).getTime(); valA = isNaN(tA) ? 0 : tA; valB = isNaN(tB) ? 0 : tB; } 
-                else if (column === 'acceptance_rate') { valA = valA?.rate ?? -1; valB = valB?.rate ?? -1; } 
-                else if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = (valB || '').toLowerCase(); } 
-                else { valA = valA || 0; valB = valB || 0; }
-                if (valA < valB) return direction === 'asc' ? -1 : 1; if (valA > valB) return direction === 'asc' ? 1 : -1; return 0;
+                if (column === 'deadline') {
+                    const tA = new Date(valA).getTime(); const tB = new Date(valB).getTime();
+                    valA = isNaN(tA) ? 0 : tA; valB = isNaN(tB) ? 0 : tB;
+                } else if (column === 'acceptance_rate') {
+                    valA = parseFloat(valA?.rate ?? -1); valB = parseFloat(valB?.rate ?? -1);
+                    if (isNaN(valA)) valA = -1; if (isNaN(valB)) valB = -1;
+                } else if (typeof valA === 'string') {
+                    valA = valA.toLowerCase(); valB = (valB || '').toLowerCase();
+                } else {
+                    valA = valA || 0; valB = valB || 0;
+                }
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
             });
-        };
+        }
 
-        handleSort = (column) => {
+        function handleSort(column) {
             const indicators = document.querySelectorAll('.sort-indicator'); indicators.forEach(i => { if (i.parentElement.dataset.column !== column) i.className = 'sort-indicator none'; });
             const currentIndicator = document.querySelector(`[data-column="${column}"] .sort-indicator`);
-            if (sortState.column === column) { sortState.direction = sortState.direction === 'asc' ? 'desc' : (sortState.direction === 'desc' ? 'none' : 'asc'); } 
-            else { sortState.column = column; sortState.direction = 'asc'; }
+            if (sortState.column === column) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : (sortState.direction === 'desc' ? 'none' : 'asc');
+            } else {
+                sortState.column = column; sortState.direction = 'asc';
+            }
             if (currentIndicator) currentIndicator.className = `sort-indicator ${sortState.direction}`;
             updateTable(currentTab);
-        };
+        }
         
         function updateTable(tab) {
             const tableHeader = document.getElementById('table-header');
@@ -958,13 +980,19 @@
 
             let filteredData = filterData(dataToFilter, tab);
             
-            if (sortState.column && sortState.direction !== 'none') filteredData = sortData(filteredData, sortState.column, sortState.direction);
+            if (sortState.column && sortState.direction !== 'none') {
+                filteredData = sortData(filteredData, sortState.column, sortState.direction);
+            }
 
             const noResultsEl = document.getElementById('no-results');
             const paginationContainer = document.getElementById('pagination-container');
-            if (filteredData.length === 0) { noResultsEl.style.display = 'block'; paginationContainer.innerHTML = ''; document.getElementById('table-body').innerHTML = ''; return; }
+            if (filteredData.length === 0) {
+                noResultsEl.style.display = 'block';
+                paginationContainer.innerHTML = '';
+                document.getElementById('table-body').innerHTML = '';
+                return;
+            }
             noResultsEl.style.display = 'none';
-            
             renderPagination(filteredData);
         }
 
@@ -1002,29 +1030,21 @@
         }
 
         function escapeHtml(str) {
-            // 只处理可能破坏属性的单引号，以保证data-info='...'的完整性
             return str.replace(/'/g, "&#39;");
         }
 
-        // 分享函数添加
         function shareItem(button) {
             const item = JSON.parse(button.dataset.info);
             const type = button.dataset.type;
             let textToCopy = '';
-
             if (type === 'ccf') {
-
-                const accRateText = item.acceptance_rate 
-                    ? `${(item.acceptance_rate.rate * 100).toFixed(1)}%` 
-                    : 'N/A';
-
+                const accRateText = item.acceptance_rate ? `${(item.acceptance_rate.rate * 100).toFixed(1)}% (${item.acceptance_rate.year})` : 'N/A';
                 textToCopy = `【CCF会议推荐】\n- 简称: ${item.title}\n- 全称: ${item.description}\n- 级别: CCF ${item.ccf_rank}\n- 录用率: ${accRateText}\n- 截稿: ${item.deadline || 'TBD'}\n- 官网: ${item.link}`;
             } else if (type === 'jcr') {
                 textToCopy = `【期刊推荐】\n- 期刊名: ${item.name}\n- 影响因子: ${item.impactFactor}\n- JCR分区: ${item.quartile}\n- 中科院分区: ${item.cas_partition}`;
             } else if (type === 'markdown') {
                 textToCopy = `【CCF列表推荐】\n- 名称: ${item.name} (${item.totalname})\n- 类型: ${item.type}\n- 级别: ${item.level}\n- 出版社: ${item.publisher}`;
             }
-
             navigator.clipboard.writeText(textToCopy).then(() => {
                 showStatus('条目信息已复制到剪贴板！', 'success');
                 button.textContent = '已复制!';
@@ -1044,15 +1064,18 @@
             pageData.forEach(item => {
                 const row = document.createElement('tr');
                 if (currentTab === 'ccf') {
-                    const accRateHtml = item.acceptance_rate ? `<span title="${item.acceptance_rate.str || ''}">${(item.acceptance_rate.rate * 100).toFixed(1)}%</span>` : '<span class="text-muted">N/A</span>';
-                    // CCF行渲染修改
+                    let accRateHtml = '<span class="text-muted">N/A</span>';
+                    if (item.acceptance_rate && typeof item.acceptance_rate.rate === 'number') {
+                        const rateText = `${(item.acceptance_rate.rate * 100).toFixed(1)}%`;
+                        const yearText = ` (${item.acceptance_rate.year})`;
+                        const tooltip = item.acceptance_rate.str || '';
+                        accRateHtml = `<span title="${tooltip}">${rateText}${yearText}</span>`;
+                    }
                     row.innerHTML = `<td data-label="简称">${item.title}</td><td data-label="全称">${item.description}</td><td data-label="领域">${categoryMap[item.sub] || item.sub}</td><td data-label="CCF">${item.ccf_rank || 'N/A'}</td><td data-label="年份">${item.year}</td><td data-label="截稿时间">${formatDeadline(item.deadline)}</td><td data-label="录用率">${accRateHtml}</td><td data-label="会议日期">${item.date || 'N/A'}</td><td data-label="地点">${item.place || 'N/A'}</td><td data-label="链接"><a href="${item.link}" target="_blank">访问</a></td><td data-label="分享"><button class="share-row-btn" data-type="ccf" data-info='${escapeHtml(JSON.stringify(item))}' onclick="shareItem(this)">分享</button></td>`;
                 } else if (currentTab === 'jcr') {
-                    // JCR行渲染修改
-                    row.innerHTML = `<td data-label="期刊名">${item.name}</td><td data-label="ISSN">${item.issn}</td><td data-label="类别">${item.category}</td><td data-label="影响因子">${item.impactFactor}</td><td data-label="JCR分区">${item.quartile}</td><td data-label="中科院分区">${item.cas_partition}</td><td data-label="分享"><button class="share-row-btn" data-type="jcr" data-info='${JSON.stringify(item)}' onclick="shareItem(this)">分享</button></td>`;
+                    row.innerHTML = `<td data-label="期刊名">${item.name}</td><td data-label="ISSN">${item.issn}</td><td data-label="类别">${item.category}</td><td data-label="影响因子">${item.impactFactor}</td><td data-label="JCR分区">${item.quartile}</td><td data-label="中科院分区">${item.cas_partition}</td><td data-label="分享"><button class="share-row-btn" data-type="jcr" data-info='${escapeHtml(JSON.stringify(item))}' onclick="shareItem(this)">分享</button></td>`;
                 } else {
-                    // Markdown行渲染修改
-                    row.innerHTML = `<td data-label="简称">${item.name}</td><td data-label="全称">${item.totalname}</td><td data-label="领域">${item.category}</td><td data-label="类型">${item.type}</td><td data-label="级别">${item.level}</td><td data-label="出版社">${item.publisher}</td><td data-label="链接">${item.url}</td><td data-label="分享"><button class="share-row-btn" data-type="markdown" data-info='${JSON.stringify(item)}' onclick="shareItem(this)">分享</button></td>`;
+                    row.innerHTML = `<td data-label="简称">${item.name}</td><td data-label="全称">${item.totalname}</td><td data-label="领域">${item.category}</td><td data-label="类型">${item.type}</td><td data-label="级别">${item.level}</td><td data-label="出版社">${item.publisher}</td><td data-label="链接">${item.url}</td><td data-label="分享"><button class="share-row-btn" data-type="markdown" data-info='${escapeHtml(JSON.stringify(item))}' onclick="shareItem(this)">分享</button></td>`;
                 }
                 tableBody.appendChild(row);
             });
@@ -1066,11 +1089,11 @@
 
             showStatus('正在加载数据，请稍候...', 'info');
             
-            const cachedConf = localStorage.getItem('conferenceData');
-            const cachedAcc = localStorage.getItem('acceptanceRateData');
+            const cachedConf = localStorage.getItem(CACHE_KEYS.CONFERENCE);
+            const cachedAcc = localStorage.getItem(CACHE_KEYS.ACCEPTANCE);
             if (cachedConf && cachedAcc) {
                 conferenceData = JSON.parse(cachedConf);
-                acceptanceRateData = JSON.parse(cachedAcc);
+                acceptanceRateData = new Map(JSON.parse(cachedAcc));
                 showStatus('使用缓存数据加载成功', 'success');
             } else {
                 await updateConferenceData();
