@@ -872,7 +872,7 @@
                 }
                 if (line.startsWith('|') && line.includes('|') && !line.includes('---') && !line.includes('序号')) {
                     const columns = line.split('|').map(col => col.trim());
-                    if (columns.length > 4 && columns[2]) {
+                    if (columns.length > 4 && columns[3]) {
                         data.push({ category: currentCategory, type: currentType, level: currentLevel, name: columns[2], totalname: columns[3], publisher: columns[4], url: columns[5] });
                     }
                 }
