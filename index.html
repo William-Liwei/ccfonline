@@ -502,12 +502,12 @@
             table.table th, table.table td { padding: 10px 8px; font-size: 12px; }
             .table-container { margin-top: 15px; border-radius: 6px; overflow-x: auto; width: 100%; }
             thead { display: none; }
-            table.table tbody tr { display: block; width: 100%; margin-bottom: 20px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); background-color: #fff; position: relative; overflow: auto; }
+            table.table tbody tr { display: block; width: 100%; margin-bottom: 20px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); background-color: #fff; position: relative; overflow: hidden; }
             body.dark-mode table.table tbody tr { background-color: #2a2a40; }
             table.table td { display: block; text-align: left; position: relative; padding-left: 7%; max-width: none !important; border-bottom: 1px solid #e0e0e0; word-break: break-word; white-space: normal; box-sizing: border-box; }
             body.dark-mode table.table td { border-color: #3a3a50; }
             table.table td:last-child { border-bottom: none; }
-            table.table td::before { content: attr(data-label); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; text-align: left; width: 25%; color: #666; font-size: 12px; }
+            table.table td::before { content: attr(data-label); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; text-align: left; width: 7%; color: #666; font-size: 12px; }
             body.dark-mode table.table td::before { color: #b0b0b0; }
             table.table td:last-child a, table.table td[data-label="分享"] button { display: inline-block; padding: 6px 12px; background-color: #5d78ff; color: white !important; border-radius: 4px; text-align: center; min-width: 60px; font-size: 12px; }
             body.dark-mode table.table td:last-child a, body.dark-mode table.table td[data-label="分享"] button { background-color: #4a5dcc; }
@@ -1100,10 +1100,10 @@
             }
             populateConferenceFilterOptions(conferenceData);
 
-            const mdResponse = await fetchData('index.md');
+            const mdResponse = await fetchData(`index.md?t=${Date.now()}`);
             if (mdResponse) { markdownData = parseMarkdown(await mdResponse.text()); populateMarkdownFilterOptions(markdownData); }
 
-            const jcrResponse = await fetchData('jcr.xlsx');
+            const jcrResponse = await fetchData(`jcr.xlsx?t=${Date.now()}`);
             if (jcrResponse) { jcrData = parseExcel(await jcrResponse.arrayBuffer()); populateJCRFilterOptions(jcrData); }
             
             updateTable('ccf');
