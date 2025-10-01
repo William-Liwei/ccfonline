@@ -1100,10 +1100,10 @@
             }
             populateConferenceFilterOptions(conferenceData);
 
-            const mdResponse = await fetchData(`index.md?t=${Date.now()}`);
+            const mdResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/index.md?t=${Date.now()}`);
             if (mdResponse) { markdownData = parseMarkdown(await mdResponse.text()); populateMarkdownFilterOptions(markdownData); }
 
-            const jcrResponse = await fetchData(`jcr.xlsx?t=${Date.now()}`);
+            const jcrResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/jcr.xlsx?t=${Date.now()}`);
             if (jcrResponse) { jcrData = parseExcel(await jcrResponse.arrayBuffer()); populateJCRFilterOptions(jcrData); }
             
             updateTable('ccf');
