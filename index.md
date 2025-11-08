@@ -838,7 +838,7 @@
 | 19   | IJCNN    | International Joint Conference on Neural Networks            | IEEE                                      | http://dblp.uni-trier.de/db/conf/ijcnn/   |
 | 20   | PRICAI   | Pacific Rim International Conference on Artificial Intelligence | Springer                                  | http://dblp.uni-trier.de/db/conf/pricai/  |
 
-##### 中国计算机学会推荐国际学术刊物（人机交互与普适计算）
+##### 中国计算机学会推荐国际学术期刊（人机交互与普适计算）
 
 ###### 一、A 类
 
