@@ -21,21 +21,61 @@
         /* 页面标题 */
         .page-title {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #c9a961 0%, #b76e79 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(201, 169, 97, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .page-title h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-            transition: color 0.3s ease;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
         }
-        
+
+        .page-title h1:hover {
+            transform: scale(1.05);
+        }
+
         .page-title p {
-            font-size: 1.1rem;
-            color: #6c757d;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
             transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+            margin: 5px 0;
+        }
+
+        .page-title .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            margin-top: 10px;
         }
         
         /* 主容器 */
@@ -155,12 +195,12 @@
         
         .sort-indicator.asc::after {
             content: "▲";
-            color: #007bff;
+            color: #c9a961;
         }
-        
+
         .sort-indicator.desc::after {
             content: "▼";
-            color: #007bff;
+            color: #c9a961;
         }
         
         .sort-indicator.none::after {
@@ -234,7 +274,7 @@
         }
         
         .tab-btn.active {
-            background-color: #0d6efd;
+            background-color: #c9a961;
             color: white;
         }
         
@@ -242,7 +282,7 @@
         .search-container {
             margin-bottom: 25px;
         }
-        
+
         #search-input {
             padding: 12px 15px;
             border: 1px solid #d1d1e0;
@@ -252,11 +292,11 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
-        
+
         #search-input:focus {
-            border-color: #5d78ff;
+            border-color: #c9a961;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(93, 120, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.25);
         }
         
         /* 筛选器样式 */
@@ -301,9 +341,9 @@
         .filter-group select:focus,
         .jcr-filter-group select:focus,
         .markdown-filter-group select:focus {
-            border-color: #5d78ff;
+            border-color: #c9a961;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(93, 120, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.25);
         }
         
         /* 表格容器样式 */
@@ -344,14 +384,14 @@
         
         /* 链接样式 */
         table.table td a {
-            color: #4d6fff;
+            color: #c9a961;
             font-weight: 600;
             text-decoration: none;
             transition: color 0.3s ease;
         }
-        
+
         table.table td a:hover {
-            color: #2a49d1;
+            color: #b76e79;
             text-decoration: underline;
         }
         
@@ -375,13 +415,18 @@
         body.dark-mode {
             background-color: #1a1a2e;
         }
-        
+
+        body.dark-mode .page-title {
+            background: linear-gradient(135deg, #8b7355 0%, #7a5a5a 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
         body.dark-mode .page-title h1 {
             color: #e0e0e0;
         }
-        
+
         body.dark-mode .page-title p {
-            color: #b0b0b0;
+            color: rgba(255, 255, 255, 0.8);
         }
         
         body.dark-mode .main-container {
@@ -413,10 +458,10 @@
         body.dark-mode .filter-group select:focus,
         body.dark-mode .jcr-filter-group select:focus,
         body.dark-mode .markdown-filter-group select:focus {
-            border-color: #5d78ff;
-            box-shadow: 0 0 0 3px rgba(93, 120, 255, 0.25);
+            border-color: #c9a961;
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.25);
         }
-        
+
         body.dark-mode table.table {
             color: #e0e0e0;
             background-color: #252539;
@@ -442,11 +487,11 @@
         }
         
         body.dark-mode table.table td a {
-            color: #64a0ff;
+            color: #d4af87;
         }
-        
+
         body.dark-mode table.table td a:hover {
-            color: #8ab1ff;
+            color: #e0b0b0;
         }
         
         body.dark-mode .no-results {
@@ -483,9 +528,9 @@
         }
 
         .pagination-btn.active {
-            background-color: #0d6efd;
+            background-color: #c9a961;
             color: white;
-            border-color: #0d6efd;
+            border-color: #c9a961;
         }
 
         .pagination-btn.disabled {
@@ -532,14 +577,225 @@
         .share-row-btn.copied {
             background-color: #28a745; /* 复制成功后的绿色 */
         }
+
+        /* 工具区域样式 */
+        .tools-section {
+            margin-top: 50px;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8d5d5 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tools-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tools-header h2 {
+            font-size: 1.8rem;
+            color: #8b6f47;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tools-header p {
+            color: #9d7e6b;
+            font-size: 0.95rem;
+        }
+
+        .tools-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-card h3 {
+            font-size: 1.3rem;
+            color: #c9a961;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-input-group {
+            margin-bottom: 15px;
+        }
+
+        .tool-input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tool-input-group input,
+        .tool-input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d1e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .tool-input-group input:focus,
+        .tool-input-group select:focus {
+            border-color: #c9a961;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #c9a961 0%, #b76e79 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(201, 169, 97, 0.4);
+        }
+
+        .tool-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #c9a961;
+            display: none;
+        }
+
+        .tool-result.show {
+            display: block;
+        }
+
+        .tool-result h4 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .tool-result p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .timezone-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .timezone-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .timezone-item .city {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timezone-item .time {
+            color: #c9a961;
+            font-weight: 500;
+        }
+
+        /* 夜间模式 - 工具区域 */
+        body.dark-mode .tools-section {
+            background: linear-gradient(135deg, #3a3530 0%, #3a3035 100%);
+        }
+
+        body.dark-mode .tools-header h2 {
+            color: #d4af87;
+        }
+
+        body.dark-mode .tools-header p {
+            color: #b0a090;
+        }
+
+        body.dark-mode .tool-card {
+            background: #252539;
+        }
+
+        body.dark-mode .tool-card h3 {
+            color: #d4af87;
+        }
+
+        body.dark-mode .tool-input-group label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-input-group input,
+        body.dark-mode .tool-input-group select {
+            background: #33334d;
+            color: #e0e0e0;
+            border-color: #444460;
+        }
+
+        body.dark-mode .tool-result {
+            background: #2a2a40;
+            border-left-color: #d4af87;
+        }
+
+        body.dark-mode .tool-result h4 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-result p {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .timezone-item {
+            background: #33334d;
+            border-color: #444460;
+        }
+
+        body.dark-mode .timezone-item .city {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .timezone-item .time {
+            color: #d4af87;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="page-title">
             <h1>CCF Online</h1>
-            <p>Author: William-Liwei</p>
-            <p>Shanghai University</p>
+            <p class="subtitle">学术会议与期刊信息一站式平台</p>
+            <p>Author: William-Liwei | Shanghai University</p>
         </div>
         
         <div class="button-container">
@@ -555,7 +811,7 @@
         <div class="status-info" id="status-info">
             <span id="status-text"></span>
         </div>
-        
+
         <div class="tab-container">
             <button class="tab-btn active" data-tab="ccf">CCF Deadlines</button>
             <button class="tab-btn" data-tab="jcr">JCR 数据</button>
@@ -711,11 +967,289 @@
         </div>
 
         <div class="pagination-container" id="pagination-container"></div>
+
+        <div class="tools-section">
+            <div class="tools-header">
+                <h2>实用工具</h2>
+                <p>时间换算 & 距离计算 - 让学术出行更便捷</p>
+            </div>
+            <div class="tools-container">
+                <!-- 时间换算工具 -->
+                <div class="tool-card">
+                    <h3>时间换算器</h3>
+                    <div class="tool-input-group">
+                        <label for="time-from-city">从哪个城市/时区</label>
+                        <select id="time-from-city">
+                            <option value="aoe">AoE (UTC-12)</option>
+                            <option value="beijing">北京 (UTC+8)</option>
+                            <option value="tokyo">东京 (UTC+9)</option>
+                            <option value="seoul">首尔 (UTC+9)</option>
+                            <option value="singapore">新加坡 (UTC+8)</option>
+                            <option value="london">伦敦 (UTC+0)</option>
+                            <option value="paris">巴黎 (UTC+1)</option>
+                            <option value="newyork">纽约 (UTC-5)</option>
+                            <option value="losangeles">洛杉矶 (UTC-8)</option>
+                        </select>
+                    </div>
+                    <div class="tool-input-group">
+                        <label for="aoe-date">选择日期</label>
+                        <input type="date" id="aoe-date">
+                    </div>
+                    <div class="tool-input-group">
+                        <label for="aoe-time">时间</label>
+                        <input type="time" id="aoe-time" value="23:59">
+                    </div>
+                    <div class="tool-input-group">
+                        <label for="time-to-city">转换到哪个城市/时区</label>
+                        <select id="time-to-city">
+                            <option value="beijing">北京 (UTC+8)</option>
+                            <option value="tokyo">东京 (UTC+9)</option>
+                            <option value="seoul">首尔 (UTC+9)</option>
+                            <option value="singapore">新加坡 (UTC+8)</option>
+                            <option value="london">伦敦 (UTC+0)</option>
+                            <option value="paris">巴黎 (UTC+1)</option>
+                            <option value="newyork">纽约 (UTC-5)</option>
+                            <option value="losangeles">洛杉矶 (UTC-8)</option>
+                            <option value="aoe">AoE (UTC-12)</option>
+                        </select>
+                    </div>
+                    <button class="tool-btn" onclick="convertTime()">转换时间</button>
+                    <div class="tool-result" id="time-result">
+                        <h4>转换结果</h4>
+                        <div class="timezone-list" id="timezone-list"></div>
+                    </div>
+                </div>
+
+                <!-- 距离和机票费用计算工具 -->
+                <div class="tool-card">
+                    <h3>距离 & 机票估算</h3>
+                    <div class="tool-input-group">
+                        <label for="from-city">出发城市</label>
+                        <select id="from-city">
+                            <option value="beijing">北京 Beijing</option>
+                            <option value="shanghai">上海 Shanghai</option>
+                            <option value="guangzhou">广州 Guangzhou</option>
+                            <option value="shenzhen">深圳 Shenzhen</option>
+                            <option value="hongkong">香港 Hong Kong</option>
+                            <option value="tokyo">东京 Tokyo</option>
+                            <option value="seoul">首尔 Seoul</option>
+                            <option value="singapore">新加坡 Singapore</option>
+                            <option value="london">伦敦 London</option>
+                            <option value="paris">巴黎 Paris</option>
+                            <option value="newyork">纽约 New York</option>
+                            <option value="losangeles">洛杉矶 Los Angeles</option>
+                            <option value="sanfrancisco">旧金山 San Francisco</option>
+                            <option value="sydney">悉尼 Sydney</option>
+                            <option value="melbourne">墨尔本 Melbourne</option>
+                        </select>
+                    </div>
+                    <div class="tool-input-group">
+                        <label for="to-city">目的地城市</label>
+                        <select id="to-city">
+                            <option value="beijing">北京 Beijing</option>
+                            <option value="shanghai">上海 Shanghai</option>
+                            <option value="guangzhou">广州 Guangzhou</option>
+                            <option value="shenzhen">深圳 Shenzhen</option>
+                            <option value="hongkong">香港 Hong Kong</option>
+                            <option value="tokyo">东京 Tokyo</option>
+                            <option value="seoul">首尔 Seoul</option>
+                            <option value="singapore">新加坡 Singapore</option>
+                            <option value="london">伦敦 London</option>
+                            <option value="paris">巴黎 Paris</option>
+                            <option value="newyork">纽约 New York</option>
+                            <option value="losangeles">洛杉矶 Los Angeles</option>
+                            <option value="sanfrancisco">旧金山 San Francisco</option>
+                            <option value="sydney">悉尼 Sydney</option>
+                            <option value="melbourne">墨尔本 Melbourne</option>
+                        </select>
+                    </div>
+                    <button class="tool-btn" onclick="calculateDistance()">计算距离</button>
+                    <div class="tool-result" id="distance-result">
+                        <h4>计算结果</h4>
+                        <p><strong>距离：</strong><span id="distance-value"></span></p>
+                        <p><strong>飞行时间：</strong><span id="flight-time"></span></p>
+                        <p><strong>经济舱参考价：</strong><span id="economy-price"></span></p>
+                        <p><strong>商务舱参考价：</strong><span id="business-price"></span></p>
+                        <p style="font-size: 0.85rem; color: #888; margin-top: 10px;">* 价格为粗略估算，实际价格受季节、航司等因素影响</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script>
+        // ========== 实用工具函数 ==========
+
+        // 时区数据
+        const timezoneData = {
+            aoe: { name: 'AoE', offset: -12, flag: '🌍' },
+            beijing: { name: '北京', offset: 8, flag: '🇨🇳' },
+            tokyo: { name: '东京', offset: 9, flag: '🇯🇵' },
+            seoul: { name: '首尔', offset: 9, flag: '🇰🇷' },
+            singapore: { name: '新加坡', offset: 8, flag: '🇸🇬' },
+            london: { name: '伦敦', offset: 0, flag: '🇬🇧' },
+            paris: { name: '巴黎', offset: 1, flag: '🇫🇷' },
+            newyork: { name: '纽约', offset: -5, flag: '🇺🇸' },
+            losangeles: { name: '洛杉矶', offset: -8, flag: '🇺🇸' }
+        };
+
+        // 时间换算功能
+        function convertTime() {
+            const fromCity = document.getElementById('time-from-city').value;
+            const toCity = document.getElementById('time-to-city').value;
+            const dateInput = document.getElementById('aoe-date').value;
+            const timeInput = document.getElementById('aoe-time').value;
+
+            if (!dateInput || !timeInput) {
+                showStatus('请选择日期和时间', 'error');
+                return;
+            }
+
+            if (fromCity === toCity) {
+                showStatus('源时区和目标时区不能相同', 'error');
+                return;
+            }
+
+            const fromTz = timezoneData[fromCity];
+            const toTz = timezoneData[toCity];
+
+            // 创建源时区的时间（转换为UTC）
+            const dateTimeStr = `${dateInput}T${timeInput}:00`;
+            const sourceDate = new Date(dateTimeStr);
+            const utcTime = sourceDate.getTime() - (fromTz.offset * 3600000);
+
+            // 转换到目标时区
+            const targetTime = new Date(utcTime + (toTz.offset * 3600000));
+
+            const targetTimeStr = targetTime.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            const timezoneList = document.getElementById('timezone-list');
+            timezoneList.innerHTML = `
+                <div class="timezone-item">
+                    <span class="city">${fromTz.flag} ${fromTz.name}</span>
+                    <span class="time">${dateInput} ${timeInput}</span>
+                </div>
+                <div style="text-align: center; padding: 10px; font-size: 1.5rem; color: #c9a961;">⬇️</div>
+                <div class="timezone-item">
+                    <span class="city">${toTz.flag} ${toTz.name}</span>
+                    <span class="time">${targetTimeStr}</span>
+                </div>
+            `;
+
+            document.getElementById('time-result').classList.add('show');
+        }
+
+        // 城市坐标数据库
+        const cityCoordinates = {
+            beijing: { lat: 39.9042, lon: 116.4074, name: '北京' },
+            shanghai: { lat: 31.2304, lon: 121.4737, name: '上海' },
+            guangzhou: { lat: 23.1291, lon: 113.2644, name: '广州' },
+            shenzhen: { lat: 22.5431, lon: 114.0579, name: '深圳' },
+            hongkong: { lat: 22.3193, lon: 114.1694, name: '香港' },
+            tokyo: { lat: 35.6762, lon: 139.6503, name: '东京' },
+            seoul: { lat: 37.5665, lon: 126.9780, name: '首尔' },
+            singapore: { lat: 1.3521, lon: 103.8198, name: '新加坡' },
+            london: { lat: 51.5074, lon: -0.1278, name: '伦敦' },
+            paris: { lat: 48.8566, lon: 2.3522, name: '巴黎' },
+            newyork: { lat: 40.7128, lon: -74.0060, name: '纽约' },
+            losangeles: { lat: 34.0522, lon: -118.2437, name: '洛杉矶' },
+            sanfrancisco: { lat: 37.7749, lon: -122.4194, name: '旧金山' },
+            sydney: { lat: -33.8688, lon: 151.2093, name: '悉尼' },
+            melbourne: { lat: -37.8136, lon: 144.9631, name: '墨尔本' }
+        };
+
+        // Haversine 公式计算两点间距离
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // 地球半径（公里）
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // 估算机票价格
+        function estimateFlightPrice(distance) {
+            // 基础价格计算（人民币）
+            let economyBase, businessBase;
+
+            if (distance < 1000) {
+                // 短途
+                economyBase = 500 + distance * 0.8;
+                businessBase = economyBase * 3;
+            } else if (distance < 3000) {
+                // 中途
+                economyBase = 800 + distance * 0.6;
+                businessBase = economyBase * 3.5;
+            } else if (distance < 8000) {
+                // 长途
+                economyBase = 2000 + distance * 0.4;
+                businessBase = economyBase * 4;
+            } else {
+                // 超长途
+                economyBase = 3500 + distance * 0.3;
+                businessBase = economyBase * 5;
+            }
+
+            return {
+                economy: Math.round(economyBase),
+                business: Math.round(businessBase)
+            };
+        }
+
+        // 距离和机票费用计算
+        function calculateDistance() {
+            const fromCity = document.getElementById('from-city').value;
+            const toCity = document.getElementById('to-city').value;
+
+            if (fromCity === toCity) {
+                showStatus('出发城市和目的地城市不能相同', 'error');
+                return;
+            }
+
+            const from = cityCoordinates[fromCity];
+            const to = cityCoordinates[toCity];
+
+            // 计算距离
+            const distance = calculateHaversineDistance(from.lat, from.lon, to.lat, to.lon);
+
+            // 估算飞行时间（平均速度 800 km/h）
+            const flightHours = distance / 800;
+            const hours = Math.floor(flightHours);
+            const minutes = Math.round((flightHours - hours) * 60);
+
+            // 估算机票价格
+            const prices = estimateFlightPrice(distance);
+
+            // 显示结果
+            document.getElementById('distance-value').textContent = ` ${distance.toFixed(0)} 公里`;
+            document.getElementById('flight-time').textContent = ` 约 ${hours} 小时 ${minutes} 分钟`;
+            document.getElementById('economy-price').textContent = ` ¥${prices.economy.toLocaleString()} - ¥${(prices.economy * 1.5).toLocaleString()}`;
+            document.getElementById('business-price').textContent = ` ¥${prices.business.toLocaleString()} - ¥${(prices.business * 1.3).toLocaleString()}`;
+
+            document.getElementById('distance-result').classList.add('show');
+        }
+
+        // 初始化日期选择器为今天
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('aoe-date').value = today;
+        });
+
+        // ========== 原有代码 ==========
+    </script>
     <script>
         let jcrData = [];
         let conferenceData = [];
@@ -724,6 +1258,8 @@
         let sortState = { column: null, direction: 'none' };
         // --- 核心修复 1: 将 acceptanceRateData 的初始值修正为 Map 对象 ---
         let acceptanceRateData = new Map();
+        let jcrDataLoaded = false;
+        let markdownDataLoaded = false;
 
         // --- 核心修复 2: 更改 localStorage 的键名以强制更新缓存 ---
         const CACHE_KEYS = {
@@ -933,13 +1469,59 @@
             categoryOptions.forEach(c => categoryFilter.innerHTML += `<option value="${c}">${c}</option>`);
         }
 
+        async function loadJCRData() {
+            if (jcrDataLoaded) return;
+            showStatus('正在加载 JCR 数据，请稍候...', 'info');
+            const jcrResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/jcr.xlsx?t=${Date.now()}`);
+            if (jcrResponse) {
+                jcrData = parseExcel(await jcrResponse.arrayBuffer());
+                populateJCRFilterOptions(jcrData);
+                jcrDataLoaded = true;
+                showStatus('JCR 数据加载成功', 'success');
+            } else {
+                showStatus('JCR 数据加载失败', 'error');
+            }
+        }
+
+        async function loadMarkdownData() {
+            if (markdownDataLoaded) return;
+            showStatus('正在加载 CCF 推荐列表数据，请稍候...', 'info');
+            const mdResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/index.md?t=${Date.now()}`);
+            if (mdResponse) {
+                markdownData = parseMarkdown(await mdResponse.text());
+                populateMarkdownFilterOptions(markdownData);
+                markdownDataLoaded = true;
+                showStatus('CCF 推荐列表数据加载成功', 'success');
+            } else {
+                showStatus('CCF 推荐列表数据加载失败', 'error');
+            }
+        }
+
         function sortData(data, column, direction) {
             if (!column || direction === 'none') return data;
             return [...data].sort((a, b) => {
                 let valA = a[column], valB = b[column];
                 if (column === 'deadline') {
-                    const tA = new Date(valA).getTime(); const tB = new Date(valB).getTime();
-                    valA = isNaN(tA) ? 0 : tA; valB = isNaN(tB) ? 0 : tB;
+                    const now = new Date();
+                    const tA = new Date(valA).getTime();
+                    const tB = new Date(valB).getTime();
+                    const validA = !isNaN(tA);
+                    const validB = !isNaN(tB);
+                    const passedA = validA && tA < now.getTime();
+                    const passedB = validB && tB < now.getTime();
+
+                    // 特殊排序：未过期的在前，已过期的在后
+                    if (passedA !== passedB) {
+                        return passedA ? 1 : -1; // 未过期的排在前面
+                    }
+
+                    // 同类型的按时间排序
+                    if (!validA && !validB) return 0;
+                    if (!validA) return 1;
+                    if (!validB) return -1;
+
+                    valA = tA;
+                    valB = tB;
                 } else if (column === 'acceptance_rate') {
                     valA = parseFloat(valA?.rate ?? -1); valB = parseFloat(valB?.rate ?? -1);
                     if (isNaN(valA)) valA = -1; if (isNaN(valB)) valB = -1;
@@ -1100,21 +1682,26 @@
             }
             populateConferenceFilterOptions(conferenceData);
 
-            const mdResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/index.md?t=${Date.now()}`);
-            if (mdResponse) { markdownData = parseMarkdown(await mdResponse.text()); populateMarkdownFilterOptions(markdownData); }
-
-            const jcrResponse = await fetchData(`https://raw.githubusercontent.com/William-Liwei/ccfonline/main/jcr.xlsx?t=${Date.now()}`);
-            if (jcrResponse) { jcrData = parseExcel(await jcrResponse.arrayBuffer()); populateJCRFilterOptions(jcrData); }
-            
+            // 为 CCF Deadlines 设置默认排序：未过期的按截稿时间升序，已过期的在后面
+            sortState = { column: 'deadline', direction: 'asc' };
             updateTable('ccf');
 
-            document.querySelectorAll('.tab-btn').forEach(button => button.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(button => button.addEventListener('click', async function() {
                 currentTab = this.dataset.tab;
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); this.classList.add('active');
                 document.getElementById('ccf-filters').style.display = currentTab === 'ccf' ? 'block' : 'none';
                 document.getElementById('jcr-filters').style.display = currentTab === 'jcr' ? 'block' : 'none';
                 document.getElementById('markdown-filters').style.display = currentTab === 'markdown' ? 'block' : 'none';
-                sortState = { column: null, direction: 'none' }; updateTable(currentTab);
+                sortState = { column: null, direction: 'none' };
+
+                // 懒加载数据
+                if (currentTab === 'jcr' && !jcrDataLoaded) {
+                    await loadJCRData();
+                } else if (currentTab === 'markdown' && !markdownDataLoaded) {
+                    await loadMarkdownData();
+                }
+
+                updateTable(currentTab);
             }));
             
             document.getElementById('reset-btn').addEventListener('click', function() { document.getElementById('search-input').value = ''; document.querySelectorAll('select').forEach(s => s.value = 'all'); sortState = { column: null, direction: 'none' }; updateTable(currentTab); });
