@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  conferenceKeys, createJournalIndex, dblpKey, deadlineStatus, esc, findJournal, formatCountdown, formatInZone,
+  conferenceKeys, createJournalIndex, dblpKey, deadlineStatus, parseCsv, esc, findJournal, formatCountdown, formatInZone,
   parseCcfList, parseTimezone, pickDeadline, processConferences, safeUrl, wallTimeToUtc
 } from '../assets/lib.js';
 
@@ -146,6 +146,14 @@ test('conference keys link CCF names to ccfddl via DBLP', () => {
 test('ambiguous journal names are not guessed', () => {
   const index = createJournalIndex(['JOURNAL OF X AND Y', 'Journal of X & Y']);
   assert.equal(findJournal(index, 'Journal of X and Y'), -1);
+});
+
+test('parseCsv handles quotes, commas and CRLF', () => {
+  const csv = '\uFEFFJournal,ISSN,Web of Science\r\n"COMPUTERS & GRAPHICS-UK",0097-8493,"SCIE, SSCI"\r\n"Say ""hi""",,\r\n\r\n';
+  assert.deepEqual(parseCsv(csv), [
+    { Journal: 'COMPUTERS & GRAPHICS-UK', ISSN: '0097-8493', 'Web of Science': 'SCIE, SSCI' },
+    { Journal: 'Say "hi"', ISSN: '', 'Web of Science': '' }
+  ]);
 });
 
 test('esc and safeUrl neutralise untrusted values', () => {

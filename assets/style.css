@@ -213,6 +213,7 @@ th[aria-sort="descending"] .sort-btn::after { content: "↓"; opacity: 1; color:
   background: var(--surface-2); font-size: 0.78rem; font-weight: 600; white-space: nowrap;
 }
 .tag-top { background: var(--gold-soft); color: var(--gold); }
+.tag-warn { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
 
 .deadline { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .deadline time { font-weight: 700; }

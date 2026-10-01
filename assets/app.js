@@ -6,6 +6,8 @@ const PAGE_SIZE = 50;
 const CONF_CACHE_KEY = 'ccfonline-conferences-v3';
 const LEGACY_CACHE_KEYS = ['conferenceData_v2', 'acceptanceRateData_v2', 'lastUpdate_v2'];
 const STALE_MS = 24 * 3600 * 1000;
+// ccfddl publishes the merged YAML on the `page` branch of ccfddl/ccfddl.github.io;
+// ccfddl.com serves the same files and is usually reachable from mainland China.
 const CCFDDL_MIRRORS = [
   'https://ccfddl.com/conference',
   'https://raw.githubusercontent.com/ccfddl/ccfddl.github.io/page/conference'
@@ -194,9 +196,23 @@ function journalMetrics(j, versions) {
   const tags = [];
   if (j.jif) tags.push(`<span class="tag" title="JCR ${esc(versions.jcrVersion)} 影响因子">IF ${esc(j.jif)}</span>`);
   if (j.quartile) tags.push(`<span class="tag">${esc(j.quartile)}</span>`);
-  if (j.cas) tags.push(`<span class="tag" title="中科院分区 ${esc(versions.casVersion)}">中科院 ${esc(j.cas)} 区</span>`);
-  if (j.casTop) tags.push('<span class="tag tag-top">Top</span>');
+  if (j.cas) tags.push(`<span class="tag" title="中科院分区 ${esc(versions.casVersion)}">中科院 ${esc(j.cas)} 区${j.casTop ? ' Top' : ''}</span>`);
+  if (j.xr) tags.push(`<span class="tag" title="新锐分区 ${esc(versions.xrVersion)}">新锐 ${esc(j.xr)} 区${j.xrTop ? ' Top' : ''}</span>`);
+  if (j.xrWarn) tags.push('<span class="tag tag-warn" title="新锐分区标注为 Under Review（预警）">预警</span>');
   return tags.join('');
+}
+
+function zoneCell(zone, top, warn) {
+  if (!zone) return '<span class="muted">—</span>';
+  return `<span class="tag">${esc(zone)} 区</span>${top ? '<span class="tag tag-top">Top</span>' : ''}${warn ? '<span class="tag tag-warn">预警</span>' : ''}`;
+}
+
+function partitionLines(j, m) {
+  const lines = [];
+  if (j.jif) lines.push(`JCR ${m.jcrVersion}：IF ${j.jif}${j.quartile ? `，${j.quartile}` : ''}${j.rank ? `，学科排名 ${j.rank}` : ''}`);
+  if (j.cas) lines.push(`中科院 ${m.casVersion}：${j.cas} 区${j.casTop ? ' Top' : ''}`);
+  if (j.xr) lines.push(`新锐 ${m.xrVersion}：${j.xr} 区${j.xrTop ? ' Top' : ''}${j.xrWarn ? '（预警）' : ''}`);
+  return lines;
 }
 
 const copyBtn = (i) => `<button type="button" class="row-btn" data-copy="${i}">复制</button>`;
@@ -295,15 +311,11 @@ const TABS = {
     ],
     copyText(r) {
       const lines = [[r.name, r.full].filter(Boolean).join(' - '), `CCF ${r.level} 类${r.type} · ${r.category}`, `出版社：${r.publisher}`];
-      if (r.type === '期刊' && r.jif) {
-        const m = data.meta || {};
-        lines.push(`JCR ${m.jcrVersion}：IF ${r.jif}${r.quartile ? `，${r.quartile}` : ''}`);
-        if (r.cas) lines.push(`中科院 ${m.casVersion}：${r.cas} 区${r.casTop ? ' Top' : ''}`);
-      }
+      if (r.type === '期刊') lines.push(...partitionLines(r, data.meta || {}));
       if (safeUrl(r.url)) lines.push(r.url);
       return lines.join('\n');
     },
-    note: () => (data.meta ? `CCF 推荐目录 ${data.meta.ccfListVersion} 版 · 期刊指标：JCR ${data.meta.jcrVersion} / 中科院分区 ${data.meta.casVersion}` : '')
+    note: () => (data.meta ? `CCF 推荐目录 ${data.meta.ccfListVersion} 版 · 期刊指标：JCR ${data.meta.jcrVersion} / 中科院 ${data.meta.casVersion} / 新锐 ${data.meta.xrVersion}` : '')
   },
 
   jcr: {
@@ -315,14 +327,18 @@ const TABS = {
       { key: 'jif', label: '影响因子', options: () => [['10', '≥ 10'], ['5', '5 – 10'], ['3', '3 – 5'], ['0', '< 3']] },
       { key: 'quart', label: 'JCR 分区', options: () => ['Q1', 'Q2', 'Q3', 'Q4'].map((q) => [q, q]) },
       { key: 'cas', label: '中科院分区', options: () => [1, 2, 3, 4].map((z) => [String(z), `${z} 区`]) },
+      { key: 'xr', label: '新锐分区', options: () => [1, 2, 3, 4].map((z) => [String(z), `${z} 区`]) },
       { key: 'ccf', label: 'CCF 推荐', options: () => [['any', 'CCF 收录'], ['A', 'A 类'], ['B', 'B 类'], ['C', 'C 类']] },
-      { key: 'top', label: '只看中科院 Top', type: 'check', def: '0' }
+      { key: 'top', label: '只看中科院 Top', type: 'check', def: '0' },
+      { key: 'nowarn', label: '排除预警期刊', type: 'check', def: '0' }
     ],
     match(j, f) {
       if (f.jcat !== 'all' && !j.categories.includes(f.jcat)) return false;
       if (f.quart !== 'all' && j.quartile !== f.quart) return false;
       if (f.cas !== 'all' && String(j.cas) !== f.cas) return false;
+      if (f.xr !== 'all' && String(j.xr) !== f.xr) return false;
       if (f.top === '1' && !j.casTop) return false;
+      if (f.nowarn === '1' && j.xrWarn) return false;
       if (f.ccf === 'any' && !j.ccf) return false;
       if (f.ccf !== 'all' && f.ccf !== 'any' && j.ccf !== f.ccf) return false;
       if (f.jif !== 'all') {
@@ -339,6 +355,7 @@ const TABS = {
       jif: (j) => j.jifNum,
       quart: (j) => (j.quartile ? Number(j.quartile[1]) : null),
       cas: (j) => j.cas || null,
+      xr: (j) => j.xr || null,
       ccf: (j) => (j.ccf ? RANK_ORDER[j.ccf] : null)
     },
     columns: [
@@ -346,19 +363,17 @@ const TABS = {
       { label: 'JCR 学科', render: (j) => sub(esc(j.categories.join('；'))) },
       { label: '影响因子', sort: 'jif', render: (j) => (j.jif ? `<strong>${esc(j.jif)}</strong>${sub(esc(j.rank))}` : '<span class="muted">—</span>') },
       { label: 'JCR', sort: 'quart', render: (j) => (j.quartile ? `<span class="tag">${esc(j.quartile)}</span>` : '<span class="muted">—</span>') },
-      { label: '中科院', sort: 'cas', render: (j) => (j.cas ? `<span class="tag">${esc(j.cas)} 区</span>${j.casTop ? '<span class="tag tag-top">Top</span>' : ''}` : '<span class="muted">—</span>') },
+      { label: '中科院', sort: 'cas', render: (j) => zoneCell(j.cas, j.casTop) },
+      { label: '新锐', sort: 'xr', render: (j) => zoneCell(j.xr, j.xrTop, j.xrWarn) },
       { label: 'CCF', sort: 'ccf', render: (j) => (j.ccf ? rankBadge(j.ccf) : '<span class="muted">—</span>') },
       { label: '', render: (j, i) => copyBtn(i) }
     ],
     copyText(j) {
-      const m = data.meta || {};
-      const lines = [j.name, `ISSN ${j.issn || '—'} / eISSN ${j.eissn || '—'}`];
-      if (j.jif) lines.push(`JCR ${m.jcrVersion}：IF ${j.jif}${j.quartile ? `，${j.quartile}` : ''}${j.rank ? `，学科排名 ${j.rank}` : ''}`);
-      if (j.cas) lines.push(`中科院 ${m.casVersion}：${j.cas} 区${j.casTop ? ' Top' : ''}`);
+      const lines = [j.name, `ISSN ${j.issn || '—'} / eISSN ${j.eissn || '—'}`, ...partitionLines(j, data.meta || {})];
       if (j.ccf) lines.push(`CCF 推荐：${j.ccf} 类`);
       return lines.join('\n');
     },
-    note: () => (data.meta ? `JCR ${data.meta.jcrVersion} 年度影响因子 · 中科院分区 ${data.meta.casVersion} 版 · 共 ${data.jcr?.length ?? 0} 种期刊` : '')
+    note: () => (data.meta ? `JCR ${data.meta.jcrVersion}（${Number(data.meta.jcrVersion) + 1} 年 6 月发布）· 中科院分区 ${data.meta.casVersion} · 新锐分区 ${data.meta.xrVersion} · 共 ${data.jcr?.length ?? 0} 种期刊` : '')
   }
 };
 
