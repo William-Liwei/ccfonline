@@ -4,6 +4,18 @@
 
 在线地址：<https://www.weili.space/ccf/>
 
+## 用户交流
+
+[用得顺手？加入 QQ 交流群｜报错、提建议、接收更新](https://qm.qq.com/q/bA6EfhXULC)
+
+**CCF-Online 用户交流1群** · QQ 群号：**1129726599**
+
+会议截稿查询、工具反馈与更新交流。独立维护，非 CCF 官方社群；投稿信息以会议官网为准。禁止灌水、代投代写及垃圾广告。
+
+<a href="https://qm.qq.com/q/bA6EfhXULC"><img src="assets/qq-group-1129726599.png" alt="CCF-Online 用户交流1群加群二维码，群号 1129726599" width="184" height="184"></a>
+
+用 QQ 扫码加入，或点击上方链接；也可在 QQ 中搜索群号。当前统一在这一个群交流。
+
 ## 功能
 
 - **会议截稿**：数据来自 [ccfddl](https://ccfddl.com/)。截稿时间按会议原时区（AoE、UTC±N、PT 等）换算，可切换为北京时间、本机时区或原时区显示，带倒计时；多轮截稿自动取下一轮，同时显示摘要截止时间和录用率。
